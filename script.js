@@ -283,6 +283,8 @@ movements.forEach(function (cashFlow, index) {
   console.log(`Your account is now at $${accountTotal} dollars.`);
 });
 
+// -----------CODING CHALLENGE #1------------
+
 
 1. Julia found out that the owners of the FIRST and the LAST TWO dogs actually have cats, not dogs! So create a shallow copy of Julia's array, and remove the cat ages from that copied array (because it's a bad practice to mutate function parameters)
 2. Create an array with both Julia's (corrected) and Kate's data
@@ -322,7 +324,7 @@ const codingChallenge1 = function (juliaarr, katearr) {
 //   console.log(`The ${value} is abbrevieated with ${key}. `);
 // });
 
-// Coding Challenge #2
+// -----------CODING CHALLENGE #2------------
 
 /* 
 Let's go back to Julia and Kate's study about dogs. This time, they want to convert dog ages to human ages and calculate the average age of the dogs in their study.
@@ -346,6 +348,20 @@ const calcAverageHumanAge = function (agesArr) {
   );
   return adultAverageAge / adults.length;
 };
+
+// -----------CODING CHALLENGE #3------------
+
+// const calcAverageHumanAge = function (agesArr) {
+//   const humanAge = agesArr
+//     .map(age => (age <= 2 ? age * 2 : 16 + age * 4))
+//     .filter(newHumanAge => newHumanAge >= 18)
+//     .reduce(
+//       (averageAge, eachAge, i, arr) => (averageAge += eachAge / arr.length),
+//       0
+//     );
+//   return humanAge;
+// };
+
 
 console.log(calcAverageHumanAge([5, 2, 4, 1, 15, 8, 3]));
 console.log(calcAverageHumanAge([16, 6, 10, 5, 6, 1, 4]));
