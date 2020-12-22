@@ -78,12 +78,13 @@ const displayMovements = function (cashFlow) {
   });
 };
 
-const calDisplayBal = function (cashFlow) {
-  const balance = cashFlow.reduce(
+const calDisplayBal = function (account) {
+  account.balance = account.movements.reduce(
     (totalValue, individualAmount) => totalValue + individualAmount,
     0
   );
-  labelBalance.textContent = `${balance}€`;
+
+  labelBalance.textContent = `${account.balance}€`;
 };
 
 const calDisplaySummary = function (cashFlow) {
@@ -124,19 +125,25 @@ const getUserName = function (accountsarr) {
 };
 getUserName(accounts);
 
+function updatingUI() {
+  displayMovements(currentAccount.movements);
+  calDisplaySummary(currentAccount.movements);
+  calDisplayBal(currentAccount);
+}
+
 let currentAccount;
 
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
-
+  // check to see if account exist
   currentAccount = accounts.find(
     acc => acc.userName === inputLoginUsername.value
   );
+  // the ? makes it so it doesnt read this if the account is undefined
   if (currentAccount?.pin === Number(inputLoginPin.value)) {
     console.log(`Log in achieved`);
 
     // display welcome message
-
     labelWelcome.textContent = `Welcome back, ${
       currentAccount.owner.split(' ')[0]
     }`;
@@ -147,17 +154,45 @@ btnLogin.addEventListener('click', function (e) {
     inputLoginPin.blur();
 
     // display cashflow and summary for account
-    displayMovements(currentAccount.movements);
-    calDisplaySummary(currentAccount.movements);
-    calDisplayBal(currentAccount.movements);
+    updatingUI();
     // ----------------
   } else {
     console.log(`log in not achieved`);
     labelWelcome.textContent = `Account Not Found`;
     containerApp.style.opacity = 0;
   }
+  // console.log(currentAccount);
+});
 
-  console.log(currentAccount);
+const transferMoney = btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+  const amount = Number(inputTransferAmount.value);
+  const reciever = accounts.find(
+    name =>
+      name.userName === inputTransferTo.value ||
+      name.owner === inputTransferTo.value
+  );
+
+  if (
+    amount > 0 &&
+    reciever &&
+    amount < currentAccount.balance &&
+    reciever.userName !== currentAccount.userName
+  ) {
+    console.log(`You may proceed`);
+    currentAccount.movements.push(-amount);
+    reciever.movements.push(amount);
+    updatingUI();
+  } else if (amount > 0 && amount >= currentAccount.balance) {
+    console.log(`Insufficient funds to proceed`);
+  } else if (amount === 0) {
+    console.log(`Can not tranfer ${amount}.`);
+  } else {
+    console.log(`You can not transfer to yourself or to an unkown account`);
+  }
+
+  inputTransferAmount.value = inputTransferTo.value = '';
+  console.log(reciever.owner, amount);
 });
 
 /////////////////////////////////////////////////
