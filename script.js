@@ -141,8 +141,6 @@ btnLogin.addEventListener('click', function (e) {
   );
   // the ? makes it so it doesnt read this if the account is undefined
   if (currentAccount?.pin === Number(inputLoginPin.value)) {
-    console.log(`Log in achieved`);
-
     // display welcome message
     labelWelcome.textContent = `Welcome back, ${
       currentAccount.owner.split(' ')[0]
@@ -157,7 +155,6 @@ btnLogin.addEventListener('click', function (e) {
     updatingUI();
     // ----------------
   } else {
-    console.log(`log in not achieved`);
     labelWelcome.textContent = `Account Not Found`;
     containerApp.style.opacity = 0;
   }
@@ -179,20 +176,37 @@ const transferMoney = btnTransfer.addEventListener('click', function (e) {
     amount < currentAccount.balance &&
     reciever.userName !== currentAccount.userName
   ) {
-    console.log(`You may proceed`);
     currentAccount.movements.push(-amount);
     reciever.movements.push(amount);
-    updatingUI();
-  } else if (amount > 0 && amount >= currentAccount.balance) {
-    console.log(`Insufficient funds to proceed`);
-  } else if (amount === 0) {
-    console.log(`Can not tranfer ${amount}.`);
-  } else {
-    console.log(`You can not transfer to yourself or to an unkown account`);
-  }
+    labelWelcome.textContent = `Transfer Complete`;
 
-  inputTransferAmount.value = inputTransferTo.value = '';
-  console.log(reciever.owner, amount);
+    updatingUI();
+    inputTransferAmount.value = inputTransferTo.value = '';
+  } else if (amount > 0 && amount >= currentAccount.balance) {
+    labelWelcome.textContent = `Insufficient funds to proceed`;
+  } else if (amount === 0) {
+    labelWelcome.textContent = `Can not tranfer ${amount}.`;
+  } else {
+    labelWelcome.textContent = `You can not transfer to yourself or to an unkown account`;
+  }
+});
+
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault();
+  if (
+    currentAccount.userName === inputCloseUsername.value &&
+    currentAccount.pin === Number(inputClosePin.value)
+  ) {
+    labelWelcome.textContent = 'Close Account Accepted';
+    const deletionIndex = accounts.findIndex(
+      acc => acc.userName === currentAccount.userName
+    );
+    accounts.splice(deletionIndex, 1);
+    inputCloseUsername.value = inputClosePin.value = '';
+    containerApp.style.opacity = 0;
+  } else {
+    labelWelcome.textContent = `Username or Pin Incorrect`;
+  }
 });
 
 /////////////////////////////////////////////////
