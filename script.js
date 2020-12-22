@@ -6,7 +6,7 @@
 
 // Data
 const account1 = {
-  owner: 'Joshua Caleb Gulledge',
+  owner: 'Joshua Gulledge',
   movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
   interestRate: 1.2, // %
   pin: 1111,
@@ -78,8 +78,6 @@ const displayMovements = function (cashFlow) {
   });
 };
 
-displayMovements(account1.movements);
-
 const calDisplayBal = function (cashFlow) {
   const balance = cashFlow.reduce(
     (totalValue, individualAmount) => totalValue + individualAmount,
@@ -87,8 +85,6 @@ const calDisplayBal = function (cashFlow) {
   );
   labelBalance.textContent = `${balance}€`;
 };
-
-calDisplayBal(account1.movements);
 
 const calDisplaySummary = function (cashFlow) {
   const totalDeposit = cashFlow
@@ -101,15 +97,14 @@ const calDisplaySummary = function (cashFlow) {
     .reduce((totalAmount, amount) => totalAmount + amount, 0);
   labelSumOut.textContent = `${Math.abs(totalWithdrawal)}€`;
 
-  const Interest = account1.movements
+  const Interest = cashFlow
     .filter(amount => amount > 0)
-    .map(deposit => deposit * 0.012)
+    .map(deposit => (deposit * currentAccount.interestRate) / 100)
     .filter(interstAmount => interstAmount >= 1)
     .reduce((totalAmount, amount) => totalAmount + amount, 0);
   labelSumInterest.textContent = `${Interest}€`;
+  console.log(currentAccount.interestRate);
 };
-
-calDisplaySummary(account1.movements);
 
 // const user = account1.owner;
 // refer back to video 148
@@ -129,9 +124,42 @@ const getUserName = function (accountsarr) {
 };
 getUserName(accounts);
 
-// console.log(userName);
+let currentAccount;
 
-// console.log(randomArr);
+btnLogin.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  currentAccount = accounts.find(
+    acc => acc.userName === inputLoginUsername.value
+  );
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    console.log(`Log in achieved`);
+
+    // display welcome message
+
+    labelWelcome.textContent = `Welcome back, ${
+      currentAccount.owner.split(' ')[0]
+    }`;
+    containerApp.style.opacity = 100;
+
+    // clear input fields
+    inputLoginUsername.value = inputLoginPin.value = '';
+    inputLoginPin.blur();
+
+    // display cashflow and summary for account
+    displayMovements(currentAccount.movements);
+    calDisplaySummary(currentAccount.movements);
+    calDisplayBal(currentAccount.movements);
+    // ----------------
+  } else {
+    console.log(`log in not achieved`);
+    labelWelcome.textContent = `Account Not Found`;
+    containerApp.style.opacity = 0;
+  }
+
+  console.log(currentAccount);
+});
+
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
@@ -167,7 +195,6 @@ console.log(balance);
 /*
 
 
-const euroToUSD = 1.23;
 
 // const account1USD = account1.movements.map(function (euroAmount) {
 //   return euroAmount * euroToUSD;
