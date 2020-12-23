@@ -209,6 +209,22 @@ btnClose.addEventListener('click', function (e) {
   }
 });
 
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+  const loanRequest = Number(inputLoanAmount.value);
+  if (
+    loanRequest > 0 &&
+    currentAccount.movements.some(amount => amount >= loanRequest * 0.1)
+  ) {
+    labelWelcome.textContent = `Loan approved`;
+    currentAccount.movements.push(loanRequest);
+    updatingUI();
+    inputLoanAmount.value = '';
+  } else {
+    labelWelcome.textContent = `Loan not approved`;
+  }
+});
+
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
