@@ -237,6 +237,8 @@ const transferMoney = btnTransfer.addEventListener('click', function (e) {
   ) {
     currentAccount.movements.push(-amount);
     reciever.movements.push(amount);
+    currentAccount.movementsDates.push(new Date().toISOString());
+    reciever.movementsDates.push(new Date().toISOString());
     labelWelcome.textContent = `Transfer Complete`;
 
     updatingUI();
@@ -277,6 +279,7 @@ btnLoan.addEventListener('click', function (e) {
   ) {
     labelWelcome.textContent = `Loan approved`;
     currentAccount.movements.push(loanRequest);
+    currentAccount.movementsDates.push(new Date().toISOString());
     updatingUI();
     inputLoanAmount.value = '';
   } else {
@@ -287,7 +290,7 @@ btnLoan.addEventListener('click', function (e) {
 let sorted = false;
 btnSort.addEventListener('click', function (e) {
   e.preventDefault();
-  displayMovements(currentAccount.movements, !sorted);
+  displayMovements(currentAccount, !sorted);
   sorted = !sorted;
 });
 
@@ -317,7 +320,6 @@ console.log(new Date(3 * 24 * 60 * 60 * 1000));
 console.log(new Date(2024, 2, 21, 14, 32));
 // ^ set with arguments (year, month, day, hour, minute, secons)
 
-*/
 
 // ---Working with Dates---
 const futureDate = new Date(2024, 2, 21, 14, 32);
@@ -336,6 +338,8 @@ console.log(futureDate.getTime());
 console.log(new Date(1711049520000));
 console.log(Date.now());
 // ^ gives us the current time stamp
+
+*/
 
 /*
 
