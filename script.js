@@ -50,6 +50,8 @@ const account3 = {
   pin: 3333,
   movementsDates: [
     '2019-11-18T21:31:17.178Z',
+    '2020-04-01T10:17:24.185Z',
+    '2020-02-05T16:33:06.386Z',
     '2019-12-23T07:42:02.383Z',
     '2020-01-28T09:15:04.904Z',
     '2020-04-10T14:43:26.374Z',
@@ -106,20 +108,24 @@ const inputClosePin = document.querySelector('.form__input--pin');
 
 const euroToUSD = 1.23;
 
-const displayMovements = function (cashFlow, sort = false) {
+const displayMovements = function (acc, sort = false) {
   containerMovements.innerHTML = '';
 
   const sortedCashFlow = sort
-    ? cashFlow.slice().sort((a, b) => a - b)
-    : cashFlow;
+    ? acc.movements.slice().sort((a, b) => a - b)
+    : acc.movements;
 
   sortedCashFlow.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
 
+    const dateDisplay = new Date(acc.movementsDates[i]);
+
     const html = `<div class="movements__row">
     <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
-    <div class="movements__date">3 days ago</div>
-    <div class="movements__value">${mov}€</div>
+    <div class="movements__date"> ${
+      dateDisplay.getMonth() + 1
+    }/${dateDisplay.getDate()}/${dateDisplay.getFullYear()}</div>
+    <div class="movements__value">${mov.toFixed(2)}€</div>
   </div>`;
 
     containerMovements.insertAdjacentHTML('afterbegin', html);
@@ -139,19 +145,19 @@ const calDisplaySummary = function (cashFlow) {
   const totalDeposit = cashFlow
     .filter(amount => amount > 0)
     .reduce((totalAmount, amount) => totalAmount + amount, 0);
-  labelSumIn.textContent = `${totalDeposit}€`;
+  labelSumIn.textContent = `${totalDeposit.toFixed(2)}€`;
 
   const totalWithdrawal = cashFlow
     .filter(amount => amount < 0)
     .reduce((totalAmount, amount) => totalAmount + amount, 0);
-  labelSumOut.textContent = `${Math.abs(totalWithdrawal)}€`;
+  labelSumOut.textContent = `${Math.abs(totalWithdrawal.toFixed(2))}€`;
 
   const Interest = cashFlow
     .filter(amount => amount > 0)
     .map(deposit => (deposit * currentAccount.interestRate) / 100)
     .filter(interstAmount => interstAmount >= 1)
     .reduce((totalAmount, amount) => totalAmount + amount, 0);
-  labelSumInterest.textContent = `${Interest}€`;
+  labelSumInterest.textContent = `${Interest.toFixed(2)}€`;
 };
 
 // const user = account1.owner;
@@ -173,12 +179,17 @@ const getUserName = function (accountsarr) {
 getUserName(accounts);
 
 function updatingUI() {
-  displayMovements(currentAccount.movements);
+  displayMovements(currentAccount);
   calDisplaySummary(currentAccount.movements);
   calDisplayBal(currentAccount);
 }
 
 let currentAccount;
+
+const now = new Date();
+const year = now.getFullYear();
+const month = `${now.getMonth() + 1}`.padStart(2, 0);
+const date = `${now.getDate()}`.padStart(2, 0);
 
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
@@ -193,6 +204,7 @@ btnLogin.addEventListener('click', function (e) {
       currentAccount.owner.split(' ')[0]
     }`;
     containerApp.style.opacity = 100;
+    labelDate.textContent = `${month}/${date}/${year}`;
 
     // clear input fields
     inputLoginUsername.value = inputLoginPin.value = '';
@@ -258,7 +270,7 @@ btnClose.addEventListener('click', function (e) {
 
 btnLoan.addEventListener('click', function (e) {
   e.preventDefault();
-  const loanRequest = +inputLoanAmount.value;
+  const loanRequest = Math.floor(inputLoanAmount.value);
   if (
     loanRequest > 0 &&
     currentAccount.movements.some(amount => amount >= loanRequest * 0.1)
@@ -285,24 +297,66 @@ btnSort.addEventListener('click', function (e) {
 
 // ----------Notes from section 12----------
 
+// ---Creating Dates---
+
+/*
+const now = new Date();
+console.log(now);
+// ^ current date and time
+const myBirthday = new Date('March 21, 1989 09:25');
+console.log(myBirthday);
+// ^ set a day and time
+
+console.log(new Date(account1.movementsDates[1]));
+// ^ from an array, tricky, use if js created to begin with
+
+console.log(new Date(0));
+console.log(new Date(3 * 24 * 60 * 60 * 1000));
+// the month is 0 based: 0 => Jan, 1 => Feb ...
+
+console.log(new Date(2024, 2, 21, 14, 32));
+// ^ set with arguments (year, month, day, hour, minute, secons)
+
+*/
+
+// ---Working with Dates---
+const futureDate = new Date(2024, 2, 21, 14, 32);
+console.log(futureDate);
+console.log(futureDate.getFullYear());
+console.log(futureDate.getMonth());
+console.log(futureDate.getDate());
+console.log(futureDate.getDay());
+// ^ day of the week with sunday as 0
+console.log(futureDate.getHours());
+console.log(futureDate.getMinutes());
+console.log(futureDate.getSeconds());
+console.log(futureDate.toISOString());
+console.log(futureDate.getTime());
+// ^ time stamp is time from new Date(0) unitl ...
+console.log(new Date(1711049520000));
+console.log(Date.now());
+// ^ gives us the current time stamp
+
+/*
+
 // console.log(Number('23'));
 // console.log(+'23');
 // // same thing ^
 
-// console.log(Number.parseInt('24px', 10));
-// // ^ this gets number from a string, if it STARTS with a number;
-// // second argument is the number system we are using, mostly base 10
-// console.log(Number.parseInt('e24', 10));
-// // ^ this will not work and gives you NaN
-// console.log(Number.parseFloat('2.5rem'));
-// // ^ uses for decimal numbers
-// console.log(Number.parseInt('2.5rem'));
-// // ^ stops at decimal number
-// console.log(Number.isFinite(23));
-// console.log(Number.isFinite('23'));
-// //  ^ good way to check if something is a number => booleans
-// console.log(Number.isInteger(23));
-// console.log(Number.isInteger('23'));
+console.log(Number.parseInt('24px', 10));
+// ^ this gets number from a string, if it STARTS with a number;
+// second argument is the number system we are using, mostly base 10
+console.log(Number.parseInt('e24', 10));
+// ^ this will not work and gives you NaN
+console.log(Number.parseFloat('2.5rem'));
+// ^ uses for decimal numbers
+console.log(Number.parseInt('2.5rem'));
+// ^ stops at decimal number
+console.log(Number.isFinite(23));
+console.log(Number.isFinite('23'));
+//  ^ good way to check if something is a number => booleans
+console.log(Number.isInteger(23));
+console.log(Number.isInteger('23'));
 
 // square root
 console.log(Math.sqrt(25));
@@ -322,3 +376,5 @@ const randomInt = function (min, max) {
 };
 console.log(randomInt(10, 20));
 console.log(randomInt(1, 5));
+
+*/
