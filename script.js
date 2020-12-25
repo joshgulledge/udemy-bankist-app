@@ -11,14 +11,14 @@ const account1 = {
   interestRate: 1.2, // %
   pin: 1111,
   movementsDates: [
-    '2019-11-18T21:31:17.178Z',
-    '2019-12-23T07:42:02.383Z',
-    '2020-01-28T09:15:04.904Z',
-    '2020-04-01T10:17:24.185Z',
-    '2020-05-08T14:11:59.604Z',
-    '2020-05-27T17:01:17.194Z',
-    '2020-07-11T23:36:17.929Z',
-    '2020-07-12T10:51:36.790Z',
+    '2020-01-18T21:31:17.178Z',
+    '2020-04-23T07:42:02.383Z',
+    '2020-08-28T09:15:04.904Z',
+    '2020-10-01T10:17:24.185Z',
+    '2020-11-08T14:11:59.604Z',
+    '2020-11-26T17:01:17.194Z',
+    '2020-12-20T23:36:17.929Z',
+    '2020-12-24T10:51:36.790Z',
   ],
   currency: 'EUR',
   locale: 'pt-PT', // de-DE
@@ -108,6 +108,25 @@ const inputClosePin = document.querySelector('.form__input--pin');
 
 const euroToUSD = 1.23;
 
+const formatMovementDate = function (theDay) {
+  const calcDaysPassed = function (date1, date2) {
+    return Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
+  };
+
+  const daysPassed = calcDaysPassed(new Date(), theDay);
+  console.log(daysPassed);
+
+  if (daysPassed === 0) return `Today`;
+  else if (daysPassed === 1) return `Yesterday`;
+  else if (daysPassed <= 7) return `${daysPassed} days ago`;
+  else {
+    const year = theDay.getFullYear();
+    const month = `${theDay.getMonth() + 1}`.padStart(2, 0);
+    const date = `${theDay.getDate()}`.padStart(2, 0);
+    return `${month}/${date}/${year}`;
+  }
+};
+
 const displayMovements = function (acc, sort = false) {
   containerMovements.innerHTML = '';
 
@@ -118,13 +137,12 @@ const displayMovements = function (acc, sort = false) {
   sortedCashFlow.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
 
-    const dateDisplay = new Date(acc.movementsDates[i]);
+    const date = new Date(acc.movementsDates[i]);
+    const dateDisplay = formatMovementDate(date);
 
     const html = `<div class="movements__row">
     <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
-    <div class="movements__date"> ${
-      dateDisplay.getMonth() + 1
-    }/${dateDisplay.getDate()}/${dateDisplay.getFullYear()}</div>
+    <div class="movements__date"> ${dateDisplay}</div>
     <div class="movements__value">${mov.toFixed(2)}€</div>
   </div>`;
 
@@ -186,11 +204,6 @@ function updatingUI() {
 
 let currentAccount;
 
-const now = new Date();
-const year = now.getFullYear();
-const month = `${now.getMonth() + 1}`.padStart(2, 0);
-const date = `${now.getDate()}`.padStart(2, 0);
-
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
   // check to see if account exist
@@ -204,7 +217,7 @@ btnLogin.addEventListener('click', function (e) {
       currentAccount.owner.split(' ')[0]
     }`;
     containerApp.style.opacity = 100;
-    labelDate.textContent = `${month}/${date}/${year}`;
+    labelDate.textContent = `${formatMovementDate(new Date())}`;
 
     // clear input fields
     inputLoginUsername.value = inputLoginPin.value = '';
