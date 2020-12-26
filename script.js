@@ -128,6 +128,7 @@ const formatMovementDate = function (theDay, locale) {
 };
 
 let currentAccount;
+let timer;
 
 const formatCurr = function (value) {
   const newCurr = new Intl.NumberFormat(currentAccount.locale, {
@@ -215,6 +216,26 @@ function updatingUI() {
   calDisplayBal(currentAccount);
 }
 
+const logOutTimer = function () {
+  const startTimer = function () {
+    const minutes = String(Math.trunc(time / 60)).padStart(2, 0);
+    const seconds = String(time % 60).padStart(2, 0);
+    labelTimer.textContent = `${minutes}:${seconds}`;
+
+    if (time === 0) {
+      clearInterval(timer);
+      containerApp.style.opacity = 0;
+      labelWelcome.textContent = 'Please log back in...';
+    }
+    time--;
+  };
+
+  let time = 240;
+  startTimer();
+  const timer = setInterval(startTimer, 1000);
+  return timer;
+};
+
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
   // check to see if account exist
@@ -228,6 +249,9 @@ btnLogin.addEventListener('click', function (e) {
       currentAccount.owner.split(' ')[0]
     }`;
     containerApp.style.opacity = 100;
+
+    clearInterval(timer);
+    timer = logOutTimer();
 
     const now = new Date();
 
@@ -269,19 +293,34 @@ const transferMoney = btnTransfer.addEventListener('click', function (e) {
   );
 
   if (
+    // if loan is valid
+
     amount > 0 &&
     reciever &&
     amount < currentAccount.balance &&
     reciever.userName !== currentAccount.userName
   ) {
+    // push tranfer to both arrays
+
     currentAccount.movements.push(-amount);
     reciever.movements.push(amount);
+
+    // push date to both arrays
+
     currentAccount.movementsDates.push(new Date().toISOString());
     reciever.movementsDates.push(new Date().toISOString());
+
     labelWelcome.textContent = `Transfer Complete`;
 
     updatingUI();
+
+    // clear trasfer fields
+
     inputTransferAmount.value = inputTransferTo.value = '';
+
+    // reset timer
+    clearInterval(timer);
+    logOutTimer();
   } else if (amount > 0 && amount >= currentAccount.balance) {
     labelWelcome.textContent = `Insufficient funds to proceed`;
   } else if (amount === 0) {
@@ -294,10 +333,15 @@ const transferMoney = btnTransfer.addEventListener('click', function (e) {
 btnClose.addEventListener('click', function (e) {
   e.preventDefault();
   if (
+    // check to make sure its user
+
     currentAccount.userName === inputCloseUsername.value &&
     currentAccount.pin === +inputClosePin.value
   ) {
     labelWelcome.textContent = 'Close Account Accepted';
+
+    // delete user object inside array
+
     const deletionIndex = accounts.findIndex(
       acc => acc.userName === currentAccount.userName
     );
@@ -313,14 +357,33 @@ btnLoan.addEventListener('click', function (e) {
   e.preventDefault();
   const loanRequest = Math.floor(inputLoanAmount.value);
   if (
+    // check if loan is valid
+
     loanRequest > 0 &&
     currentAccount.movements.some(amount => amount >= loanRequest * 0.1)
   ) {
-    labelWelcome.textContent = `Loan approved`;
-    currentAccount.movements.push(loanRequest);
-    currentAccount.movementsDates.push(new Date().toISOString());
-    updatingUI();
+    // wait for loan to be approved
+
+    setTimeout(function () {
+      labelWelcome.textContent = `Loan approved`;
+
+      // push loan to array
+
+      currentAccount.movements.push(loanRequest);
+
+      // push date of loan to array
+
+      currentAccount.movementsDates.push(new Date().toISOString());
+      updatingUI();
+    }, 3500);
+
+    // clear loan field
+
     inputLoanAmount.value = '';
+
+    // reset timer
+    clearInterval(timer);
+    logOutTimer();
   } else {
     labelWelcome.textContent = `Loan not approved`;
   }
